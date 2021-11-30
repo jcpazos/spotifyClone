@@ -72,6 +72,6 @@ export default NextAuth({
         session.user.usename = token.username;
 
         return session;
-     }
+     },
   }
 });
