@@ -22,7 +22,11 @@ function Song({order, track}) {
         rounded-lg cursor-pointer" onClick={playSong}>
             <div className="flex items-center space-x-4">
                 <p className="">{order+1}</p>
-                <img className="h-10 w-10" src={track.track.album.images[0].url} alt=""/>
+                <img 
+                    className="h-10 w-10 bg-gray-500" 
+                    src={track.track.album.images[0]?track.track.album.images[0].url:"https://cdn.pixabay.com/photo/2012/04/11/12/20/eighth-note-27904_1280.png"} 
+                    alt=""
+                />
                 <div>
                     <p className="w-36 lg:w-64 text-white truncate">{track.track.name}</p>
                     <p className="w-40">{track.track.artists[0].name}</p>

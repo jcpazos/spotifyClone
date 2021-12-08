@@ -1,4 +1,4 @@
-import { ChevronDownIcon } from "@heroicons/react/outline";
+import { ChevronDownIcon, ClockIcon } from "@heroicons/react/outline";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import {shuffle} from "lodash";
@@ -24,14 +24,43 @@ function Center() {
     const playlistId = useRecoilValue(playlistIdState);
     const [playlist, setPlaylist] = useRecoilState(playlistState);
 
+    const loopPlaylists = (spotifyApi, playlistId, page, returnData) => 
+        spotifyApi.getPlaylistTracks(playlistId, {
+            offset: page * 100,
+            limit: 100
+        }).then(data => {
+            if (data?.body?.next) {
+                returnData?.tracks?.items = returnData?.tracks?.items.concat(data?.body?.items);
+                return loopPlaylists(spotifyApi, playlistId, page + 1, returnData);
+            } else {
+                returnData?.tracks?.items = returnData?.tracks?.items.concat(data?.body?.items);
+                return returnData;
+            }
+        });
+
     useEffect(() => {
         setColor(shuffle(colors).pop());
     }, [playlistId]);
 
     useEffect(() => {
-        spotifyApi.getPlaylist(playlistId).then((data) => {
-            setPlaylist(data.body);
-        }).catch((error) => {console.log("Something went wrong!", error);});
+
+        const getPlaylists = (spotifyApi, playlistId) => {
+
+            let returnData;
+            spotifyApi.getPlaylist(playlistId).then((data) => {
+                returnData = data?.body;
+                let page = 1;
+                if (data?.body?.tracks?.next) {
+                    loopPlaylists(spotifyApi, playlistId, page, returnData).then((returnData) => {
+                        setPlaylist(returnData);   
+                    });
+                } else {
+                    setPlaylist(returnData);  
+                }
+            }).catch((error) => {console.log("Something went wrong!", error);});
+        };
+
+        getPlaylists(spotifyApi, playlistId);
     }, [spotifyApi, playlistId])
 
     console.log(playlist);
@@ -61,9 +90,9 @@ function Center() {
                 </div>
             </section>
 
-            <div>
-                <Songs />
-            </div>
+
+            <Songs />
+
         </div>
     );
 }

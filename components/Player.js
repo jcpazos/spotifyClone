@@ -1,4 +1,7 @@
 import { 
+    ChevronDoubleDownIcon,
+    ChevronDownIcon,
+    ChevronUpIcon,
     HeartIcon, 
     VolumeUpIcon as VolumeDownIcon 
 } from '@heroicons/react/outline';
@@ -33,11 +36,19 @@ function Player() {
     const fetchCurrentSong = () => {
         if (!songInfo) {
             spotifyApi.getMyCurrentPlayingTrack().then((response) => {
-                console.log("Now playing: ", response.body?.item);
+                const saved = localStorage.getItem("currentTrackId");
+
+                if (!response.body?.item && saved) {
+                        response = JSON.parse(saved)
+                }
                 setCurrentIdTrack(response.body?.item?.id);
 
+                response.body?.item? localStorage.setItem("currentTrackId", JSON.stringify(response)) : null;
+
                 spotifyApi.getMyCurrentPlaybackState().then((response) => {
+                    console.log("Now playing: ", response.body?.item);
                     setIsPlaying(response.body?.is_playing);
+                    
                 });
             });
         }
@@ -77,19 +88,33 @@ function Player() {
         }, 500), []
     );
 
+    const handleAlbumImageClick = () => {
+        /*console.log("hiding elems");
+        document.getElementById("album-image").style.display = "none";
+        document.getElementById("album-image").classList.add("h-15");
+        document.getElementById("album-image").classList.add("w-15");
+        document.getElementById("album-image-arrow").style.display = "none";*/
+    }
+
     return (
         <div className="h-24 bg-gradient-to-b from-black to-gray-900 text-white
         grid grid-cols-3 text-xs md:text-base px-2 md:px-8">
             {/* Left */}
-            <div className="flex items-center space-x-4">
-                <img 
-                    className="hidden md:inline h-10 w-10" 
-                    src={songInfo?.album.images?.[0]?.url} 
-                    alt="">
-                </img>
+            <div className="flex items-center space-x-4 cursor-pointer ">
+                <div className="absolute pr-5">
+                    <img id="album-image"
+                        className="hidden md:inline h-12 w-12  z-0 relative" 
+                        src={songInfo?.album.images?.[0]?.url} 
+                        alt="">
+                    </img>
+                </div>
+                <div id="album-image-arrow" onClick={handleAlbumImageClick} className=" w-5 h-5 relative bg-black rounded-full z-10 hover:opacity-100 opacity-0">
+                    <ChevronUpIcon />
+                </div>
+            
                 <div>
                     <h3>{songInfo?.name}</h3>
-                    <p>{songInfo?.artists?.[0]?.name}</p>
+                    <p className="text-xs">{songInfo?.artists?.[0]?.name}</p>
                 </div>
             </div>
             {/* Center */}
