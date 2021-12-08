@@ -113,8 +113,8 @@ function Player() {
                 </div>
             
                 <div>
-                    <h3>{songInfo?.name}</h3>
-                    <p className="text-xs">{songInfo?.artists?.[0]?.name}</p>
+                    <h3 className="hover:underline">{songInfo?.name}</h3>
+                    <p className="hover:underline text-xs">{songInfo?.artists?.[0]?.name}</p>
                 </div>
             </div>
             {/* Center */}

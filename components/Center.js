@@ -3,7 +3,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import {shuffle} from "lodash";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { playlistIdState, playlistState } from "../atoms/playlistAtom";
+import { playlistAlbumAscState, playlistAlbumDescState, playlistDateAscState, playlistDateDescState, playlistDurationAscState, playlistDurationDescState, playlistIdState, playlistState, playlistTitleAscState, playlistTitleDescState} from "../atoms/playlistAtom";
 import useSpotify from "../hooks/useSpotify";
 import Songs from "./Songs";
 
@@ -23,6 +23,14 @@ function Center() {
     const [color, setColor] = useState(null);
     const playlistId = useRecoilValue(playlistIdState);
     const [playlist, setPlaylist] = useRecoilState(playlistState);
+    const [titleAscPlaylist, setTitleAscPlaylist] = useRecoilState(playlistTitleAscState);
+    const [albumAscPlaylist, setAlbumAscPlaylist] = useRecoilState(playlistAlbumAscState);
+    const [dateAscPlaylist, setDateAscPlaylist] = useRecoilState(playlistDateAscState);
+    const [durationAscPlaylist, setDurationAscPlaylist] = useRecoilState(playlistDurationAscState);
+    const [titleDescPlaylist, setTitleDescPlaylist] = useRecoilState(playlistTitleDescState);
+    const [albumDescPlaylist, setAlbumDescPlaylist] = useRecoilState(playlistAlbumDescState);
+    const [dateDescPlaylist, setDateDescPlaylist] = useRecoilState(playlistDateDescState);
+    const [durationDescPlaylist, setDurationDescPlaylist] = useRecoilState(playlistDurationDescState);
 
     const loopPlaylists = (spotifyApi, playlistId, page, returnData) => 
         spotifyApi.getPlaylistTracks(playlistId, {
@@ -47,15 +55,60 @@ function Center() {
         const getPlaylists = (spotifyApi, playlistId) => {
 
             let returnData;
+            let albumPlaylist;
+            let titlePlaylist;
+            let datePlaylist;
+            let durationPlaylist;
+
             spotifyApi.getPlaylist(playlistId).then((data) => {
                 returnData = data?.body;
                 let page = 1;
                 if (data?.body?.tracks?.next) {
                     loopPlaylists(spotifyApi, playlistId, page, returnData).then((returnData) => {
+                        let playlist = returnData;
+                        let items;
+                        let sorted;
+
+                        //sort ascending
+                        items = [...playlist?.tracks.items];
+                        sorted = _.orderBy(items, 'track.name', 'asc');
+                        setTitleAscPlaylist({images: playlist?.images, tracks: {items: sorted}, name: playlist?.name});
+
+                        items = [...playlist?.tracks.items];
+                        sorted = _.orderBy(items, 'track.album.name','asc')
+                        setAlbumAscPlaylist({images: playlist?.images, tracks: {items: sorted}, name: playlist?.name});
+
+                        items = [...playlist?.tracks.items];
+                        sorted = _.orderBy(items, 'added_at', 'asc');
+                        setDateAscPlaylist({images: playlist?.images, tracks: {items: sorted}, name: playlist?.name});
+
+                        items = [...playlist?.tracks.items];
+                        sorted = _.orderBy(items, 'track.duration_ms', 'asc');
+                        setDurationAscPlaylist({images: playlist?.images, tracks: {items: sorted}, name: playlist?.name});
+
+                        //sort descending
+                        sorted = _.orderBy(items, 'track.name', 'desc');
+                        setTitleDescPlaylist({images: playlist?.images, tracks: {items: sorted}, name: playlist?.name});
+
+                        items = [...playlist?.tracks.items];
+                        sorted = _.orderBy(items, 'track.album.name', 'desc')
+                        setAlbumDescPlaylist({images: playlist?.images, tracks: {items: sorted}, name: playlist?.name});
+
+                        items = [...playlist?.tracks.items];
+                        sorted = _.orderBy(items, 'added_at', 'desc');
+                        setDateDescPlaylist({images: playlist?.images, tracks: {items: sorted}, name: playlist?.name});
+
+                        items = [...playlist?.tracks.items];
+                        sorted = _.orderBy(items, 'track.duration_ms', 'desc');
+                        setDurationDescPlaylist({images: playlist?.images, tracks: {items: sorted}, name: playlist?.name});
+                        
+
                         setPlaylist(returnData);   
                     });
                 } else {
                     setPlaylist(returnData);  
+                      
+                    
                 }
             }).catch((error) => {console.log("Something went wrong!", error);});
         };
