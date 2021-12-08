@@ -59,12 +59,14 @@ export default NextAuth({
     
         // Return previous token if the access token has not expired yet
         if (Date.now() < token.accessTokenExpires) {
+            console.log('token hasnt expired yet');
             return token;
         }
 
         //Access token has expired, try to update it
-        return refreshAccessToken(token);
+        console.log('refreshing access token');
 
+        return refreshAccessToken(token);
     },
 
     async session({session, token}) {
