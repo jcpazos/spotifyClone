@@ -7,7 +7,7 @@ export async function middleware(req) {
     const {pathname } = req.nextUrl;
     // Allow the requests if the following is true...
     // the token exists
-    console.log(token);
+    console.log("token", token);
     if (pathname.includes("/api/auth/") || token) {
         return NextResponse.next();
     }
