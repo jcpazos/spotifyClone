@@ -48,6 +48,7 @@ export default NextAuth({
         console.log('callback', token, account, user);
         // Do something with the token
         if (account && user) {
+            console.log('account and user exist');
             return {
                 ...token,
                 accessToken: account.access_token,
