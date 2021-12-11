@@ -40,9 +40,9 @@ export default NextAuth({
   ],
   secret: process.env.JWT_SECRET,
 
-  session: {
+  /*session: {
     strategy: "jwt",
-  },
+  },*/
 
   pages: {
       signIn: '/login',
