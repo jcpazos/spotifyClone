@@ -68,7 +68,7 @@ export default NextAuth({
         //Access token has expired, try to update it
         console.log('refreshing access token');
 
-        return refreshAccessToken(token);
+        return await refreshAccessToken(token);
     },
 
     async session({session, token}) {
